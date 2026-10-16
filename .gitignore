@@ -39,3 +39,10 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# supabase cli local state (project ref, pooler host, versions)
+supabase/.temp/
+
+# local scratch screenshots
+errors/
+Screenshot_*.jpg
