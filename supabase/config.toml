@@ -1,0 +1,16 @@
+project_id = "us"
+
+[functions.create-couple]
+verify_jwt = true
+
+[functions.join-couple]
+verify_jwt = true
+
+[functions.regenerate-invite-code]
+verify_jwt = true
+
+[functions.issue-daily-question]
+verify_jwt = true
+
+[functions.send-push-notification]
+verify_jwt = true
