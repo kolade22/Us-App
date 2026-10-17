@@ -126,7 +126,15 @@ export function useMessages(coupleId: string | null, userId: string | null): Mes
 
       if (error && error.code !== '23505') throw error; // 23505 = already stored (retry race)
 
-      if (data) return data;
+      if (data) {
+        // Best-effort partner push. Not awaited: a send must not wait on, or
+        // fail because of, the notification. The function derives the
+        // recipient from the message, so no user id is sent.
+        void supabase.functions
+          .invoke('send-push-notification', { body: { message_id: data.id } })
+          .catch(() => undefined);
+        return data;
+      }
 
       // The row already exists (previous attempt succeeded) — fetch it so the
       // optimistic entry reconciles without duplicating.

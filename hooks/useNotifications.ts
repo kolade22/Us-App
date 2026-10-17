@@ -18,12 +18,21 @@ export function useNotifications(userId: string | null) {
     // Lazy-load so Expo Go does not evaluate expo-notifications on Android.
     const Notifications = require('expo-notifications') as typeof import('expo-notifications');
     let cancelled = false;
-    Notifications.requestPermissionsAsync()
-      .then(() => Notifications.getExpoPushTokenAsync())
-      .then(({ data: token }) => {
-        if (token && !cancelled) return register(token);
-      })
-      .catch(() => undefined);
+
+    // Expo push tokens are scoped to an EAS project. Without one (no
+    // `eas init` yet) getExpoPushTokenAsync throws, so skip registration
+    // instead of logging a failure on every launch.
+    const projectId =
+      Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
+    if (projectId) {
+      Notifications.requestPermissionsAsync()
+        .then(() => Notifications.getExpoPushTokenAsync({ projectId }))
+        .then(({ data: token }) => {
+          if (token && !cancelled) return register(token);
+        })
+        .catch(() => undefined);
+    }
+
     const subscription = Notifications.addNotificationResponseReceivedListener(({ notification }) => {
       const screen = notification.request.content.data?.screen;
       if (typeof screen === 'string') router.push(screen as never);
