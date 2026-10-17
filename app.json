@@ -30,6 +30,13 @@
       "expo-router",
       "expo-status-bar",
       "expo-notifications"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f4a83f37-ee1f-4f8f-a3b2-f36949aff56f"
+      }
+    },
+    "owner": "bigm02"
   }
 }
