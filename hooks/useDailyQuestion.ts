@@ -56,6 +56,18 @@ export function useDailyQuestion(
 
     (async () => {
       try {
+        // Lazily issue today's question. The RPC is 48h-throttled per
+        // recipient and no-ops when nothing is due or the pool is empty, so
+        // calling it on every load is cheap and needs no cron/scheduler.
+        try {
+          await supabase.rpc('issue_daily_question', {
+            p_couple_id: coupleId,
+            p_recipient_id: userId,
+          });
+        } catch {
+          // Best-effort: still render any instance that already exists.
+        }
+
         const { data: instance } = await supabase
           .from('question_instances')
           .select('*')
