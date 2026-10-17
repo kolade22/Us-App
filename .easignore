@@ -1,0 +1,56 @@
+# EAS upload rules. When this file exists it REPLACES .gitignore, so the
+# entries below mirror .gitignore and then drop dev-only tooling.
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files (the build reads EXPO_PUBLIC_* from eas.json instead)
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+
+# supabase cli local state (project ref, pooler host, versions)
+supabase/.temp/
+
+# local scratch screenshots
+errors/
+Screenshot_*.jpg
+
+# agent tooling — contains Windows junctions that EAS cannot recreate while
+# packaging the tarball (EPERM: operation not permitted, symlink)
+.agents/
+.claude/
+agent/
+skills-lock.json
