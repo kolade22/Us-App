@@ -8,9 +8,13 @@
     "userInterfaceStyle": "light",
     "scheme": "us",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kolade22.us",
+      "buildNumber": "1"
     },
     "android": {
+      "package": "com.kolade22.us",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
