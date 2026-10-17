@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useCoupleContext } from '../../../lib/coupleContext';
+import { supabase } from '../../../lib/supabase';
 import { Press } from '../../../components/Press';
 import { Screen } from '../../../components/Screen';
 import { c, radius, s, shadow, space } from '../../../components/theme';
@@ -34,8 +36,24 @@ function Action({
 
 export default function Profile() {
   const { profile, partner } = useCoupleContext();
+  const [signingOut, setSigningOut] = useState(false);
   const name = profile?.display_name ?? 'Your profile';
   const initial = profile?.display_name?.trim()?.[0]?.toUpperCase() ?? '○';
+
+  // Leaving must be explicit: signing out clears the session, and the tab
+  // routes have no other redirect back to onboarding.
+  const signOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Sign out locally anyway — a stale token is better gone than stuck.
+    } finally {
+      setSigningOut(false);
+      router.replace('/onboarding');
+    }
+  };
 
   return (
     <Screen>
@@ -69,6 +87,15 @@ export default function Profile() {
         onPress={() => router.push('/picture')}
         accessibilityLabel="Open daily picture"
       />
+
+      <Press
+        style={[styles.signOut, signingOut && styles.busy]}
+        disabled={signingOut}
+        onPress={() => { void signOut(); }}
+        accessibilityLabel="Sign out"
+      >
+        <Text style={styles.signOutText}>{signingOut ? 'Signing out…' : 'Sign out'}</Text>
+      </Press>
     </Screen>
   );
 }
@@ -95,4 +122,15 @@ const styles = StyleSheet.create({
   actionGlyph: { color: c.coral, fontSize: 17 },
   actionText: { flex: 1 },
   arrow: { color: c.plum, fontSize: 20, marginLeft: space.sm },
+  signOut: {
+    alignItems: 'center',
+    borderColor: c.line,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    justifyContent: 'center',
+    marginTop: space.xxl,
+    minHeight: 50,
+  },
+  signOutText: { color: c.muted, fontSize: 14, fontWeight: '700' },
+  busy: { opacity: 0.6 },
 });

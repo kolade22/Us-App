@@ -24,3 +24,13 @@ export function todayLabel(): string {
   const now = new Date();
   return `${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]}`;
 }
+
+// IANA zone of this device, e.g. "Africa/Lagos" — used once, when a couple is
+// created, so the server's "today" matches the people using the app.
+export function deviceTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  } catch {
+    return 'UTC';
+  }
+}

@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { supabase } from '../lib/supabase';
 import { useCoupleContext } from '../lib/coupleContext';
 import { edgeErrorMessage } from '../lib/edge';
+import { deviceTimezone } from '../lib/format';
 import { AsyncError } from '../components/AsyncError';
 import { Press } from '../components/Press';
 import { Screen } from '../components/Screen';
@@ -70,6 +71,16 @@ export default function Onboarding() {
       await saveName();
       const { data, error: fnError } = await supabase.functions.invoke<CreateCoupleResponse>('create-couple', { body: { relationship_start_date: date } });
       if (fnError || !data) throw new Error(await edgeErrorMessage(fnError, data, 'Could not create your space. Try again.'));
+      // Anchor the couple's "today" to the creator's zone so the server's
+      // daily boundaries match the people using it. Non-fatal on failure.
+      try {
+        await supabase
+          .from('couple_settings')
+          .update({ timezone: deviceTimezone() })
+          .eq('couple_id', data.couple_id);
+      } catch {
+        // The couple still works on UTC.
+      }
       setInviteCode(data.invite_code);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not create your space. Try again.');

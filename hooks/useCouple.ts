@@ -10,6 +10,8 @@ export type CoupleData = {
   couple: Couple | null;
   partnerId: string | null;
   partner: Profile | null;
+  // Couple's configured IANA zone; drives server-side daily boundaries.
+  timezone: string | null;
   loading: boolean;
   error: string | null;
   refresh: () => void;
@@ -22,6 +24,7 @@ export function useCouple(userId: string | null): CoupleData {
   const [couple, setCouple] = useState<Couple | null>(null);
   const [partnerId, setPartnerId] = useState<string | null>(null);
   const [partner, setPartner] = useState<Profile | null>(null);
+  const [timezone, setTimezone] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -60,16 +63,22 @@ export function useCouple(userId: string | null): CoupleData {
           setCouple(null);
           setPartnerId(null);
           setPartner(null);
+          setTimezone(null);
           return;
         }
 
-        const [coupleResult, partnerMemberResult] = await Promise.all([
+        const [coupleResult, partnerMemberResult, settingsResult] = await Promise.all([
           supabase.from('couples').select('*').eq('id', membership.couple_id).maybeSingle(),
           supabase
             .from('couple_members')
             .select('user_id')
             .eq('couple_id', membership.couple_id)
             .neq('user_id', userId)
+            .maybeSingle(),
+          supabase
+            .from('couple_settings')
+            .select('timezone')
+            .eq('couple_id', membership.couple_id)
             .maybeSingle(),
         ]);
         if (coupleResult.error) throw coupleResult.error;
@@ -78,6 +87,7 @@ export function useCouple(userId: string | null): CoupleData {
 
         setCouple(coupleResult.data);
         setPartnerId(partnerMemberResult.data?.user_id ?? null);
+        setTimezone(settingsResult.data?.timezone ?? null);
 
         if (partnerMemberResult.data?.user_id) {
           const { data: partnerProfile, error: partnerError } = await supabase
@@ -108,5 +118,5 @@ export function useCouple(userId: string | null): CoupleData {
     };
   }, [userId, refreshKey]);
 
-  return { profile, couple, partnerId, partner, loading, error, refresh };
+  return { profile, couple, partnerId, partner, timezone, loading, error, refresh };
 }

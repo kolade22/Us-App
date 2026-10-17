@@ -20,8 +20,8 @@ function ArchiveRow({ entry, mine }: { entry: ArchiveEntry; mine: boolean }) {
 }
 
 export default function Picture() {
-  const { userId, coupleId } = useCoupleContext();
-  const { mySubmissionToday, partnerSubmissionToday, archive, uploading, uploadToday, refresh, refreshArchive } = useDailyPicture(coupleId, userId);
+  const { userId, coupleId, timezone } = useCoupleContext();
+  const { mySubmissionToday, partnerSubmissionToday, archive, uploading, uploadToday, refresh, refreshArchive } = useDailyPicture(coupleId, userId, timezone ?? 'UTC');
   const [uri, setUri] = useState<string>();
   const [error, setError] = useState<string | null>(null);
 
